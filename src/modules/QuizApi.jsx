@@ -10,3 +10,5 @@ async function fetchQuizData(amount = 10, category = '', difficulty = '', type =
   const response = await fetch(url);
   return response.json();
 }
+
+export { fetchQuizData };
