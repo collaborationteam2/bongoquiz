@@ -35,4 +35,19 @@ function getErrorMessage(responseCode) {
   }
 }
 
-export { fetchQuizData };
+function transformQuestions(questions) {
+  return questions.map((question,index) => ({
+   id: index,
+    category: decodeHtml(question.category),
+    difficulty: question.difficulty,
+    question: decodeHtml(question.question),
+    correctAnswer: decodeHtml(question.correct_answer),
+    answers: shuffle([
+      decodeHtml(question.correct_answer),
+      ...question.incorrect_answers.map(decodeHtml),
+    ]),
+  }));
+}
+
+
+export { fetchQuizData, getErrorMessage, transformQuestions };
