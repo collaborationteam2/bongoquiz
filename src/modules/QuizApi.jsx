@@ -55,5 +55,9 @@ function decodeHtml(html) {
   return txt.value;
 }
 
+function shuffle(array) {
+  return [...array].sort(() => Math.random() - 0.5);
+}
 
-export { fetchQuizData, getErrorMessage, transformQuestions };
+
+export { fetchQuizData, getErrorMessage, transformQuestions, decodeHtml, shuffle };
