@@ -11,11 +11,9 @@ const [selectedAnswer, setSelectedAnswer] = useState(null);
 const [loading , setLoading] = useState()
 const [quizCompleted , setQuizCompleted] = useState(false);
 
-const getApi = 
-asynch () => {
-    setLoading(true)
-};
-
+const getApi = async () => {
+  setLoading(true);
+;
 
 try {
     const response = await fetch ('https://opentdb.com/api.php')
@@ -29,7 +27,7 @@ setQuestions(data.results)
     console.log(`Failed to fetch questions`)
 }finally{
     setLoading(false);
-}
+}}
 
 useEffect(() => {
     getApi();
@@ -71,9 +69,21 @@ const restartQuiz = async () => {
     await getApi()
 }
 return(
-    <QuizContext.Provider value={score , loading , quizCompleted , nextQuestion , restartQuiz}>
+    <QuizContext.Provider value={ {
+        questions,
+        currentQuestion,
+        selectedAnswers,
+        score,
+        loading,
+        quizCompleted,
+        selectAnswer,
+        nextQuestion,
+        restartQuiz
+        }}>
             {children} 
 
     </QuizContext.Provider>
 )
 }
+
+export default QuizContext;
