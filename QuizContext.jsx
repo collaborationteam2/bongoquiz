@@ -1,22 +1,79 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState, createContext } from "react";
 
-function QuizLogic(){
+const QuizContext = createContext();
+
+function QuizLogic({children}){
  const [questions, setQuestions] = useState([]);
 const [currentQuestion, setCurrentQuestion] = useState(0);
 const [score, setScore] = useState(0);
 const [selectedAnswer, setSelectedAnswer] = useState(null);
-const [showResult, setShowResult] = useState(false);
 const [loading , setLoading] = useState()
+const [quizCompleted , setQuizCompleted] = useState(false);
 
 const getApi = 
-try {
-    async () => fetch ('https://opentdb.com/api.php')
+asynch () => {
+    setLoading(true)
+};
 
-const respone = await 
+
+try {
+    const response = await fetch ('https://opentdb.com/api.php')
+
+const data = await response.json()
+
+setQuestions(data.results)
 
     
 } catch (error) {
-    
+    console.log(`Failed to fetch questions`)
+}finally{
+    setLoading(false);
 }
+
+useEffect(() => {
+    getApi();
+} , []);
+
+const seleteAnswer = (answer) => {
+    setSelectedAnswer((prev) => ({
+        ...prev,
+        [currentQuestion] : answer
+    }))
+}
+
+const nextQuestion = () => {
+if(currentQuestion < questions.length - 1){
+    setCurrentQuestion((prev) => {prev + 1})
+}else{
+    calculateScore();
+    setQuizCompleted(true);
+}
+}
+
+const calculateScore = () => {
+    let finalScore = 0;
+
+    questions.forEach((question , index) => {
+        if(selectedAnswer[index] === question.correct_answer){
+            finalScore++
+        }
+    })
+    setScore(finalScore)
+}
+
+const restartQuiz = async () => {
+     setCurrentQuestion(0);
+    setSelectedAnswers({});
+    setScore(0);
+    setQuizCompleted(false);
+
+    await getApi()
+}
+return(
+    <QuizContext.Provider value={score , loading , quizCompleted , nextQuestion , restartQuiz}>
+            {children} 
+
+    </QuizContext.Provider>
+)
 }
