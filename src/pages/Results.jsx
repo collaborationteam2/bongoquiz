@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 function resultData() {
   return {
-    quizTitle: {`${localStorage.getItem("quizTitle")}`},
-    score: {parseInt(localStorage.getItem("score"))},
-    totalQuestions: {parseInt(localStorage.getItem("totalQuestions"))},
+    quizTitle: localStorage.getItem("quizTitle"),
+    score: parseInt(localStorage.getItem("score")),
+    totalQuestions: parseInt(localStorage.getItem("totalQuestions")),
     questions: JSON.parse(localStorage.getItem("questions")) || [],
-  }};
+  };
+}
 
 
 

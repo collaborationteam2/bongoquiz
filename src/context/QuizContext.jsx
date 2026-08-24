@@ -1,22 +1,20 @@
-import React, { useEffect } from "react";
-import { useState, createContext } from "react";
+import { useEffect, useState, createContext } from "react";
 
 const QuizContext = createContext();
 
-function QuizLogic({children}){
+function QuizProvider({children}){
  const [questions, setQuestions] = useState([]);
 const [currentQuestion, setCurrentQuestion] = useState(0);
 const [score, setScore] = useState(0);
-const [selectedAnswer, setSelectedAnswer] = useState(null);
-const [loading , setLoading] = useState()
+const [selectedAnswers, setSelectedAnswers] = useState({});
+const [loading , setLoading] = useState(false)
 const [quizCompleted , setQuizCompleted] = useState(false);
 
 const getApi = async () => {
   setLoading(true);
-;
 
 try {
-    const response = await fetch ('https://opentdb.com/api.php')
+    const response = await fetch ("https://opentdb.com/api.php?amount=10")
 
 const data = await response.json()
 
@@ -33,8 +31,8 @@ useEffect(() => {
     getApi();
 } , []);
 
-const seleteAnswer = (answer) => {
-    setSelectedAnswer((prev) => ({
+const selectAnswer = (answer) => {
+    setSelectedAnswers((prev) => ({
         ...prev,
         [currentQuestion] : answer
     }))
@@ -42,7 +40,7 @@ const seleteAnswer = (answer) => {
 
 const nextQuestion = () => {
 if(currentQuestion < questions.length - 1){
-    setCurrentQuestion((prev) => {prev + 1})
+    setCurrentQuestion((prev) => prev + 1)
 }else{
     calculateScore();
     setQuizCompleted(true);
@@ -53,7 +51,7 @@ const calculateScore = () => {
     let finalScore = 0;
 
     questions.forEach((question , index) => {
-        if(selectedAnswer[index] === question.correct_answer){
+        if(selectedAnswers[index] === question.correct_answer){
             finalScore++
         }
     })
@@ -86,4 +84,4 @@ return(
 )
 }
 
-export default QuizContext;
+export  {QuizContext, QuizProvider };
