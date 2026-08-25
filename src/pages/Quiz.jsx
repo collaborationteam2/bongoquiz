@@ -56,7 +56,7 @@ function Quiz() {
             onClick={() => navigate("/home")}
             className="mt-6 rounded-xl bg-cyan-500 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-400"
           >
-            Back to Home
+            Back to Home.
           </button>
         </div>
       </main>
@@ -96,7 +96,7 @@ function Quiz() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wider text-cyan-600">
-              Quiz
+              Knowledge Quiz
             </p>
 
             <h1 className="mt-1 text-2xl font-bold text-slate-950">
