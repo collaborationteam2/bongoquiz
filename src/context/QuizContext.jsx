@@ -1,73 +1,81 @@
 import { useEffect, useState, createContext } from "react";
+import { fetchQuizData } from "../modules/quizApi";
 
 const QuizContext = createContext();
 
-function QuizProvider({children}){
- const [questions, setQuestions] = useState([]);
-const [currentQuestion, setCurrentQuestion] = useState(0);
-const [score, setScore] = useState(0);
-const [selectedAnswers, setSelectedAnswers] = useState({});
-const [loading , setLoading] = useState(false)
-const [quizCompleted , setQuizCompleted] = useState(false);
+function QuizProvider({ children }) {
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
-const getApi = async () => {
-  setLoading(true);
+  
+  const getApi = async () => {
+    setLoading(true);
 
-try {
-    const response = await fetch ("https://opentdb.com/api.php?amount=10")
+    try {
+      const data = await fetchQuizData(10);
 
-const data = await response.json()
+      setQuestions(data);
+    } catch (error) {
+      console.error("Failed to fetch questions:", error);
+      setQuestions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-setQuestions(data.results)
-
-    
-} catch (error) {
-    console.log(`Failed to fetch questions`)
-}finally{
-    setLoading(false);
-}}
-
-useEffect(() => {
+  
+  useEffect(() => {
     getApi();
-} , []);
+  }, []);
 
-const selectAnswer = (answer) => {
+  
+  const selectAnswer = (answer) => {
     setSelectedAnswers((prev) => ({
-        ...prev,
-        [currentQuestion] : answer
-    }))
-}
+      ...prev,
+      [currentQuestion]: answer,
+    }));
+  };
 
-const nextQuestion = () => {
-if(currentQuestion < questions.length - 1){
-    setCurrentQuestion((prev) => prev + 1)
-}else{
-    calculateScore();
-    setQuizCompleted(true);
-}
-}
 
-const calculateScore = () => {
+  const nextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
+    } else {
+      calculateScore();
+      setQuizCompleted(true);
+    }
+  };
+
+  
+  const calculateScore = () => {
     let finalScore = 0;
 
-    questions.forEach((question , index) => {
-        if(selectedAnswers[index] === question.correct_answer){
-            finalScore++
-        }
-    })
-    setScore(finalScore)
-}
+    questions.forEach((question, index) => {
+      if (selectedAnswers[index] === question.correctAnswer) {
+        finalScore++;
+      }
+    });
 
-const restartQuiz = async () => {
-     setCurrentQuestion(0);
+    setScore(finalScore);
+  };
+
+ 
+  const restartQuiz = async () => {
+    setCurrentQuestion(0);
     setSelectedAnswers({});
     setScore(0);
     setQuizCompleted(false);
 
-    await getApi()
-}
-return(
-    <QuizContext.Provider value={ {
+    await getApi();
+  };
+
+  return (
+    <QuizContext.Provider
+      value={{
         questions,
         currentQuestion,
         selectedAnswers,
@@ -76,12 +84,12 @@ return(
         quizCompleted,
         selectAnswer,
         nextQuestion,
-        restartQuiz
-        }}>
-            {children} 
-
+        restartQuiz,
+      }}
+    >
+      {children}
     </QuizContext.Provider>
-)
+  );
 }
 
-export  {QuizContext, QuizProvider };
+export { QuizContext, QuizProvider };
