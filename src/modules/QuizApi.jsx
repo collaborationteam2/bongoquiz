@@ -1,63 +1,81 @@
-const baseUrl = 'https://opentdb.com/api.php';
+const baseUrl = "https://the-trivia-api.com/api/questions";
 
-async function fetchQuizData(amount = 10, category = '', difficulty = '', type = '') {
+async function fetchQuizData(
+  amount = 10,
+  category = "",
+  difficulty = ""
+) {
   const url = new URL(baseUrl);
-  url.searchParams.append('amount', amount);
-  if (category) url.searchParams.append('category', category);
-  if (difficulty) url.searchParams.append('difficulty', difficulty);
-  if (type) url.searchParams.append('type', type);
 
-   const response = await fetch(url.toString());
+  url.searchParams.set("limit", amount);
 
-  if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`);
+  if (category) {
+    url.searchParams.set("categories", category);
   }
 
-  const data = await response.json();
-
-  if (data.response_code !== 0) {
-    throw new Error(getErrorMessage(data.response_code));
+  if (difficulty) {
+    url.searchParams.set("difficulties", difficulty);
   }
 
-  return transformQuestions(data.results);
-}
+  console.log("Fetching quiz from:", url.toString());
 
-function getErrorMessage(responseCode) {
-  switch (responseCode) {
-    case 1:
-      return 'Invalid category ID';
-    case 2:
-      return 'Invalid difficulty level';
-    case 3:
-      return 'Invalid type';
-    default:
-      return 'Unknown error';
+  try {
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      throw new Error(
+        `API request failed with status ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    console.log("Quiz data received:", data);
+
+    return transformQuestions(data);
+  } catch (error) {
+    console.error("Quiz API Error:", error);
+    throw error;
   }
 }
 
 function transformQuestions(questions) {
-  return questions.map((question,index) => ({
-   id: index,
-    category: decodeHtml(question.category),
-    difficulty: question.difficulty,
-    question: decodeHtml(question.question),
-    correctAnswer: decodeHtml(question.correct_answer),
-    answers: shuffle([
-      decodeHtml(question.correct_answer),
-      ...question.incorrect_answers.map(decodeHtml),
-    ]),
-  }));
-}
+  return questions.map((question, index) => {
+    const correctAnswer = question.correctAnswer;
 
-function decodeHtml(html) {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
+    const incorrectAnswers = question.incorrectAnswers || [];
+
+    return {
+      id: index,
+      category: question.category,
+      difficulty: question.difficulty,
+      question: question.question,
+      correctAnswer: correctAnswer,
+      answers: shuffle([
+        correctAnswer,
+        ...incorrectAnswers,
+      ]),
+    };
+  });
 }
 
 function shuffle(array) {
-  return [...array].sort(() => Math.random() - 0.5);
+  const shuffled = [...array];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [shuffled[i], shuffled[j]] = [
+      shuffled[j],
+      shuffled[i],
+    ];
+  }
+
+  return shuffled;
 }
 
-
-export { fetchQuizData, getErrorMessage, transformQuestions, decodeHtml, shuffle };
+export {
+  fetchQuizData,
+  transformQuestions,
+  shuffle,
+};
