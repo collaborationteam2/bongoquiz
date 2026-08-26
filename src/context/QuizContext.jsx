@@ -1,5 +1,5 @@
 import { useEffect, useState, createContext } from "react";
-import { fetchQuizData } from "../modules/quizApi";
+import { fetchQuizData } from "../modules/QuizApi";
 
 const QuizContext = createContext();
 
